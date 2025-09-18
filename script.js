@@ -1,4 +1,4 @@
-// ADMIN LOGIN (you set your username and password here)
+// ADMIN LOGIN (set your own credentials)
 const adminCreds = {
   username: "yourAdmin",
   password: "yourPassword123"
@@ -36,8 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const name = document.getElementById("productName").value;
       const desc = document.getElementById("productDesc").value;
+      const price = document.getElementById("productPrice").value;
+      const whatsapp = document.getElementById("productWhatsApp").value;
       const products = JSON.parse(localStorage.getItem("products") || "[]");
-      products.push({ name, desc });
+      products.push({ name, desc, price, whatsapp });
       localStorage.setItem("products", JSON.stringify(products));
       displayProducts();
       productForm.reset();
@@ -52,8 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const name = document.getElementById("pluginName").value;
       const desc = document.getElementById("pluginDesc").value;
+      const script = document.getElementById("pluginScript").value;
       const plugins = JSON.parse(localStorage.getItem("plugins") || "[]");
-      plugins.push({ name, desc });
+      plugins.push({ name, desc, script });
       localStorage.setItem("plugins", JSON.stringify(plugins));
       displayPlugins();
       pluginForm.reset();
@@ -70,7 +73,9 @@ function displayProducts() {
     const products = JSON.parse(localStorage.getItem("products") || "[]");
     products.forEach(p => {
       const li = document.createElement("li");
-      li.textContent = `${p.name} - ${p.desc}`;
+      li.innerHTML = `<strong>${p.name}</strong> - ${p.desc}<br>
+        💲 Price: $${p.price}<br>
+        📱 WhatsApp: <a href="https://wa.me/${p.whatsapp}" target="_blank">${p.whatsapp}</a>`;
       list.appendChild(li);
     });
   }
@@ -84,8 +89,27 @@ function displayPlugins() {
     const plugins = JSON.parse(localStorage.getItem("plugins") || "[]");
     plugins.forEach(pl => {
       const li = document.createElement("li");
-      li.textContent = `${pl.name} - ${pl.desc}`;
+      li.innerHTML = `<strong>${pl.name}</strong> - ${pl.desc}<br>
+        <textarea readonly>${pl.script}</textarea><br>
+        <button onclick="copyScript(\`${pl.script.replace(/`/g, "\\`")}\`)">Copy</button>
+        <button onclick="downloadScript('${pl.name}', \`${pl.script.replace(/`/g, "\\`")}\`)">Download</button>`;
       list.appendChild(li);
     });
   }
+}
+
+// COPY SCRIPT
+function copyScript(script) {
+  navigator.clipboard.writeText(script).then(() => {
+    alert("Script copied!");
+  });
+}
+
+// DOWNLOAD SCRIPT
+function downloadScript(name, script) {
+  const blob = new Blob([script], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${name}.txt`;
+  link.click();
 }
